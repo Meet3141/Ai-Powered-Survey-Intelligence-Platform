@@ -1,0 +1,16 @@
+Student_Name,Age,Gender,State,Favorite_Hobby,Career_Goal,Favorite_Subject,Email,Hostel_Required,Interests,CGPA
+  Rahul Sharma ,18,male,gujarat,Cricket🏏,AI engineer,Python , rahul@gmail.com ,yes,"Music, Coding",8.5
+Priya Patel,,Female,Maharashtra,Dancing💃,doctor,Biology,priya@@mail.com,No,Reading ,9.1
+Aman Verma,19,MALE,Delhi, gaming ,Software Engineer,C++,,YES,Gaming🎮,
+Sneha,17,female,Tamil Nadu,Painting,Artist,Arts ,sneha123@gmail.com,no,,7.2
+,20,Male,Karnataka,Football,Data Scientist,python,aman@mail,Yes,"Football, Coding",8
+Riya Singh,,Female, Uttar Pradesh ,Singing🎤, IAS Officer ,History,riya@gmail.com,NA,Singing,9.5
+Kunal,21,male,gujrat,Chess♟️,AI ENGINEER,Machine Learning,kunal@gmail.com,yes,Chess,8.7
+Anjali Mehta,18,FEMALE,Rajasthan,,Teacher,English,anjali@gmail,No,"Reading, Dancing",
+Rohit Kumar,NA,Male,Bihar,Kabaddi,Police Officer,General Studies,rohit@gmail.com,Yes,Sports,6.8
+Pooja,19,,Kerala,Cooking🍳,Chef,Cooking,pooja@gmail.com,yes,"Cooking, Travel",8.9
+Vikram,22,Male,,Photography📷,Photographer,Media,vikram@gmail.com,NO,Photography,7.9
+Neha Joshi,18,Female,Madhya Pradesh,Reading,Lawyer,Law,neha@gmail.com ,Yes, Reading,9
+Arjun,17,male,Punjab,Gym💪,Army Officer,,arjun@gmail.com,yes,Fitness,7.4
+Meera,18,Female,West Bengal,Traveling✈️,Unknown,Geography,,No,Travel,8.3
+Sahil,,M,Haryana,Coding,AI engineer,Python,sahilgmail.com,Yes,"Coding, Music",9.2
