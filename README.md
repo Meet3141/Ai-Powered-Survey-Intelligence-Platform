@@ -81,6 +81,7 @@ stemvelley-main/
 │   │   └── surveyRoutes.js
 │   ├── create_db.js                     # Script to initialize empty PG database
 │   ├── seed_questions.js                # Script to seed initial chatbot questions
+│   ├── run_seed.js                      # Script to execute seed_test_data.sql
 │   ├── server.js                        # Express app entrypoint & auto-table creation
 │   └── package.json
 │
@@ -110,6 +111,9 @@ stemvelley-main/
 │   │
 │   └── requirements.txt                 # Consolidated Python dependencies
 │
+├── generate_seed_sql.py                 # Generates dummy student data
+├── seed_test_data.sql                   # Generated SQL with test students and responses
+├── reset_env.ps1                        # Script to clean up output directories
 ├── .gitignore
 └── README.md                            # You are here
 ```
@@ -159,6 +163,18 @@ node seed_questions.js     # Inserts the 10 core chatbot questions
 ```
 *Note: When you start the server using `npm start`, it will automatically create all required tables (`users`, `survey_questions`, `survey_responses`) if they do not exist.*
 
+### 3.1 Populating Test Data (Optional)
+If you want to test the AI pipelines without manually answering the survey dozens of times, you can generate and seed dummy student data:
+
+```bash
+# 1. From the root directory, generate the SQL (creates seed_test_data.sql)
+python generate_seed_sql.py
+
+# 2. From the server directory, insert the data into PostgreSQL
+cd server
+node run_seed.js
+```
+
 ### 4. Running the Servers
 You will need to run the Frontend and the Backend simultaneously.
 
@@ -195,6 +211,17 @@ pip install -r requirements.txt
 5.  **Agent Invocation**: An administrator (or the user) clicks **"Run AI Pipeline"** on the dashboard. This hits `POST /api/reports/generate`.
 6.  **Data Cleaning**: The Node.js backend spawns a child process invoking `python agents/cleaning/main.py`. The cleaning agent downloads the raw data from PostgreSQL, asks Groq LLaMA how to clean it, standardizes it, and saves a pristine Excel dataset to `agents/outputs/final_clean_dataset.xlsx`.
 7.  **Clustering & Reporting**: The backend subsequently invokes the Clustering Agent. It reads the Excel file, utilizes `sentence-transformers` to plot students on an N-dimensional vector space, clusters them with `K-Means`, and outputs robust mathematical graphs (`.png`) and comprehensive narrative reports (`.pdf`, `.pptx`).
+
+---
+
+## 🧹 Resetting the Environment
+
+If you want to clear out the generated reports, clustered outputs, and cleaned datasets to start fresh, you can run the provided PowerShell script from the root directory:
+
+```powershell
+.\reset_env.ps1
+```
+This will automatically traverse the `agents/` directories and remove all generated artifacts (except `.gitkeep` files).
 
 ---
 
