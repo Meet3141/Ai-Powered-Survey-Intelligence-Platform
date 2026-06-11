@@ -7,7 +7,7 @@ import MultipleChoice from './MultipleChoice';
 import RatingScale from './RatingScale';
 import OpenEnded from './OpenEnded';
 
-const API_BASE_URL = 'http://localhost:5000/api/survey';
+const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') + '/survey';
 
 const Survey = () => {
   // State Management
