@@ -1,7 +1,6 @@
 import express from 'express';
-import { spawn } from 'child_process';
+import axios from 'axios';
 import path from 'path';
-import fs from 'fs';
 import { fileURLToPath } from 'url';
 import authMiddleware from '../middleware/authMiddleware.js';
 import adminMiddleware from '../middleware/adminMiddleware.js';
@@ -10,65 +9,39 @@ import pool from '../config/db.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const router = express.Router();
 
-// Helper: Run a Python agent script
-const runPythonAgent = (scriptPath, cwd) => {
-  return new Promise((resolve, reject) => {
-    const proc = spawn('python', [scriptPath], { cwd });
-    let stdout = '';
-    let stderr = '';
-
-    proc.stdout.on('data', (data) => { stdout += data.toString(); });
-    proc.stderr.on('data', (data) => { stderr += data.toString(); });
-    proc.on('close', (code) => {
-      if (code === 0) resolve(stdout);
-      else reject(new Error(stderr || `Process exited with code ${code}`));
-    });
-  });
-};
-
 // POST /api/reports/generate — Run full pipeline (Admin only)
 router.post('/generate', adminMiddleware, async (req, res) => {
   try {
     console.log('🚀 Starting full agent pipeline...');
 
-    // Step 1: Run cleaning agent
-    const cleaningDir = path.join(__dirname, '../../agents/cleaning');
-    const cleaningScript = path.join(cleaningDir, 'main.py');
+    const agent2Url = process.env.AGENT2_URL;
+    const agent3Url = process.env.AGENT3_URL;
 
-    if (fs.existsSync(cleaningScript)) {
-      console.log('🧹 Running cleaning agent...');
-      await runPythonAgent(cleaningScript, cleaningDir);
-      console.log('✅ Cleaning complete');
-    } else {
-      // Fallback: run from old location
-      const fallbackDir = path.join(__dirname, '../../surveyclean-ai-copy');
-      const fallbackScript = path.join(fallbackDir, 'main.py');
-      if (fs.existsSync(fallbackScript)) {
-        console.log('🧹 Running cleaning agent (fallback path)...');
-        await runPythonAgent(fallbackScript, fallbackDir);
-        console.log('✅ Cleaning complete');
-      }
+    if (!agent2Url || !agent3Url) {
+      throw new Error('AGENT2_URL and AGENT3_URL environment variables must be configured.');
     }
+
+    // Step 1: Run cleaning agent (Agent 2)
+    console.log(`🧹 Running cleaning agent via ${agent2Url}/clean...`);
+    const cleanResponse = await axios.post(`${agent2Url}/clean`);
+    console.log('✅ Cleaning complete:', cleanResponse.data);
 
     // Step 2: Run clustering agent (Agent 3)
-    const clusterDir = path.join(__dirname, '../../agents/clustering');
-    const clusteringScript = path.join(clusterDir, 'run_pipeline.py');
-
-    if (fs.existsSync(clusteringScript)) {
-      console.log('🤖 Running clustering agent...');
-      await runPythonAgent(clusteringScript, clusterDir);
-      console.log('✅ Clustering complete');
-    }
+    console.log(`🤖 Running clustering agent via ${agent3Url}/pipeline/run...`);
+    const clusterResponse = await axios.post(`${agent3Url}/pipeline/run`);
+    console.log('✅ Clustering complete:', clusterResponse.data);
 
     console.log('📊 Pipeline generation complete');
 
     res.json({
       status: 'success',
       message: 'Report generation pipeline executed successfully',
+      agent2_results: cleanResponse.data,
+      agent3_results: clusterResponse.data
     });
   } catch (error) {
-    console.error('Pipeline error:', error.message);
-    res.status(500).json({ status: 'error', message: error.message });
+    console.error('Pipeline error:', error.response?.data || error.message);
+    res.status(500).json({ status: 'error', message: error.response?.data?.detail || error.message });
   }
 });
 

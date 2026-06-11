@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 import urllib.parse
 import warnings
 
-load_dotenv(dotenv_path=Path(__file__).resolve().parents[2] / "server" / ".env", override=True)
+load_dotenv(override=True)
 
 
 def _load_fallback_dataset():
@@ -48,20 +48,24 @@ def fetch_survey_data():
     Fetches raw survey data from the PostgreSQL database.
     """
     try:
-        # DB Configuration
-        user = os.getenv("DB_USER", "postgres")
-        password = os.getenv("DB_PASSWORD")
-        host = os.getenv("DB_HOST", "127.0.0.1")
-        port = os.getenv("DB_PORT", "5432")
-        dbname = os.getenv("DB_NAME", "survey_ai")
+        # Check for single DATABASE_URL first (Railway compatible)
+        uri = os.getenv("DATABASE_URL")
         
-        # URL encode password to handle special characters like '@'
-        encoded_password = urllib.parse.quote_plus(password) if password else ""
+        if not uri:
+            # Fallback to individual fields
+            user = os.getenv("DB_USER", "postgres")
+            password = os.getenv("DB_PASSWORD")
+            host = os.getenv("DB_HOST", "127.0.0.1")
+            port = os.getenv("DB_PORT", "5432")
+            dbname = os.getenv("DB_NAME", "survey_ai")
+            
+            # URL encode password to handle special characters like '@'
+            encoded_password = urllib.parse.quote_plus(password) if password else ""
+            
+            # Connection URI
+            uri = f"postgresql://{user}:{encoded_password}@{host}:{port}/{dbname}?sslmode=disable"
         
-        # Connection URI
-        uri = f"postgresql://{user}:{encoded_password}@{host}:{port}/{dbname}?sslmode=disable"
-        
-        print(f"Attempting to connect to {dbname} on {host}:{port} as {user}...")
+        print(f"Attempting to connect to database...")
         
         conn = psycopg2.connect(uri)
 

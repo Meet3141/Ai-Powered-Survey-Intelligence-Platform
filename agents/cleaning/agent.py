@@ -5,7 +5,7 @@ from groq import Groq
 from dotenv import load_dotenv
 from utils.prompts import CLEANING_PROMPT
 
-load_dotenv(dotenv_path=Path(__file__).resolve().parent / ".env", override=False)
+load_dotenv(override=False)
 
 
 def _default_cleaning_plan():

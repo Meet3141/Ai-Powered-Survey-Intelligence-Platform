@@ -1,5 +1,6 @@
 from typing import Optional
-
+import os
+import requests
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from pathlib import Path
@@ -9,19 +10,33 @@ from app.core.config import settings
 
 router = APIRouter(prefix="", tags=["pipeline"])
 
-
 class PipelineRunRequest(BaseModel):
     path: Optional[str] = None
-
 
 @router.post("/pipeline/run")
 def run_pipeline(payload: Optional[PipelineRunRequest] = None):
     try:
-        # Determine path: use provided path, otherwise use default inputs file
+        # Determine path
         if payload and payload.path:
             p = Path(payload.path)
         else:
             p = Path(settings.input_file)
+
+        # Check if we should download from Agent 2 directly
+        agent2_url = os.getenv("AGENT2_URL")
+        if agent2_url:
+            try:
+                download_url = f"{agent2_url.rstrip('/')}/download/cleaned_data.xlsx"
+                print(f"Downloading cleaned data from {download_url}...")
+                response = requests.get(download_url, timeout=30)
+                response.raise_for_status()
+                
+                p.parent.mkdir(parents=True, exist_ok=True)
+                with open(p, "wb") as f:
+                    f.write(response.content)
+                print(f"Successfully downloaded to {p}")
+            except Exception as e:
+                print(f"Warning: Failed to download from Agent 2: {e}")
 
         if not p.exists():
             raise HTTPException(status_code=400, detail=f"Path not found: {p}")
@@ -31,11 +46,15 @@ def run_pipeline(payload: Optional[PipelineRunRequest] = None):
 
         result = run_agent3_pipeline(input_path=str(p))
 
+        # Format as requested by user
+        artifacts = result.get("artifacts", {})
+        communities = result.get("communities", [])
+        
         return {
             "status": "success",
-            "message": "Agent 3 pipeline completed successfully",
-            "artifacts": result.get("artifacts"),
-            "email_result": result.get("email_result"),
+            "communities": len(communities),
+            "pdf_report": artifacts.get("pdf", ""),
+            "ppt_report": artifacts.get("pptx", "")
         }
     except HTTPException:
         raise

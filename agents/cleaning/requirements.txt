@@ -8,3 +8,6 @@ emoji
 rapidfuzz
 scikit-learn
 psycopg2-binary
+fastapi==0.115.8
+uvicorn[standard]==0.34.0
+requests

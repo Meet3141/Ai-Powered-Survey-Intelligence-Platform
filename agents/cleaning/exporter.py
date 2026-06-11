@@ -18,7 +18,7 @@ def export_excel(df):
     Excel is the single source of truth — no database persistence.
     """
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-    outputs_dir = Path("../outputs")
+    outputs_dir = Path("outputs")
     outputs_dir.mkdir(parents=True, exist_ok=True)
 
     # ── 1. Export main cleaned dataset ──────────────────────────────────

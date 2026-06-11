@@ -3,7 +3,7 @@ uvicorn[standard]==0.34.0
 pandas==3.0.3
 numpy==2.3.5
 scikit-learn==1.7.2
-sentence-transformers==3.4.1d:\stemvelley-main\agent3-community-intelligence\inputs\cleaned_data.xlsxd:\stemvelley-main\agent3-community-intelligence\inputs\cleaned_data.xlsxd:\stemvelley-main\agent3-community-intelligence\inputs\cleaned_data.xlsx
+sentence-transformers==3.4.1
 hdbscan==0.8.40
 sqlalchemy==2.0.37
 psycopg2-binary==2.9.10
