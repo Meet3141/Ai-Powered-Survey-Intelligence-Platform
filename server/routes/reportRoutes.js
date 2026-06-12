@@ -14,21 +14,26 @@ router.post('/generate', adminMiddleware, async (req, res) => {
   try {
     console.log('🚀 Starting full agent pipeline...');
 
-    const agent2Url = process.env.AGENT2_URL;
-    const agent3Url = process.env.AGENT3_URL;
+    // Remove any trailing slashes to prevent double-slash in URLs
+    const agent2Url = process.env.AGENT2_URL?.replace(/\/$/, '');
+    const agent3Url = process.env.AGENT3_URL?.replace(/\/$/, '');
 
     if (!agent2Url || !agent3Url) {
       throw new Error('AGENT2_URL and AGENT3_URL environment variables must be configured.');
     }
 
     // Step 1: Run cleaning agent (Agent 2)
+    console.log(`Calling Agent 2: ${agent2Url}`);
     console.log(`🧹 Running cleaning agent via ${agent2Url}/clean...`);
     const cleanResponse = await axios.post(`${agent2Url}/clean`);
+    console.log('Agent 2 Success');
     console.log('✅ Cleaning complete:', cleanResponse.data);
 
     // Step 2: Run clustering agent (Agent 3)
+    console.log(`Calling Agent 3: ${agent3Url}`);
     console.log(`🤖 Running clustering agent via ${agent3Url}/pipeline/run...`);
     const clusterResponse = await axios.post(`${agent3Url}/pipeline/run`);
+    console.log('Agent 3 Success');
     console.log('✅ Clustering complete:', clusterResponse.data);
 
     console.log('📊 Pipeline generation complete');
@@ -40,7 +45,9 @@ router.post('/generate', adminMiddleware, async (req, res) => {
       agent3_results: clusterResponse.data
     });
   } catch (error) {
-    console.error('Pipeline error:', error.response?.data || error.message);
+    console.error('❌ Pipeline error occurred!');
+    console.error('Error message:', error.message);
+    console.error('Error response data:', error.response?.data);
     res.status(500).json({ status: 'error', message: error.response?.data?.detail || error.message });
   }
 });
