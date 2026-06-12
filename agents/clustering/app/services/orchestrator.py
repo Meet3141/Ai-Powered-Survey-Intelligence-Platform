@@ -42,6 +42,7 @@ def _run_agent3_pipeline(
 
     source_path = Path(input_path or settings.input_file)
 
+    logger.info("STEP 1: Loading dataset")
     # Load cleaned Excel
     frame = load_cleaned_dataset(source_path)
 
@@ -50,22 +51,25 @@ def _run_agent3_pipeline(
         len(frame)
     )
 
+    logger.info("STEP 2: Building profiles")
     # Build profiles
     frame = enrich_student_profiles(frame)
     logger.info("Profiles built")
 
+    logger.info("STEP 3: Starting embeddings (TF-IDF/SVD — no download)")
     # Generate embeddings
     embeddings = generate_embeddings(
         frame["profile_text"].tolist(),
         settings.embeddings_model,
     )
-    logger.info("Embeddings generated")
+    logger.info("STEP 3 DONE: Embeddings generated — shape: %s", str(embeddings.shape))
 
+    logger.info("STEP 4: Starting clustering")
     # Community discovery
     labels, cluster_count, clustering_method = cluster_students(
         embeddings
     )
-    logger.info("Clustering complete")
+    logger.info("STEP 4 DONE: Clustering complete — method: %s, clusters: %s", clustering_method, cluster_count)
 
     community_bundle = discover_communities(
         frame,

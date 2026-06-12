@@ -266,12 +266,44 @@ def _community_health_score(member_count: int, interest_diversity: int, skill_di
 
 # ============================================================
 # EMBEDDING GENERATION
+# Lightweight TF-IDF + SVD embeddings — no model download,
+# no HuggingFace dependency, runs instantly on any server.
 # ============================================================
 def generate_embeddings(texts: list[str], model_name: str) -> np.ndarray:
-    from sentence_transformers import SentenceTransformer
-    model = SentenceTransformer(model_name)
-    embeddings = model.encode(texts, normalize_embeddings=True, show_progress_bar=False)
-    return np.asarray(embeddings)
+    """
+    Generate dense embeddings using TF-IDF + TruncatedSVD (LSA).
+    This is a zero-download alternative to sentence-transformers that works
+    reliably on free-tier cloud instances (Render/Railway) without OOM or timeout.
+    model_name is accepted but ignored (kept for API compatibility).
+    """
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    from sklearn.decomposition import TruncatedSVD
+    from sklearn.preprocessing import normalize
+
+    if not texts:
+        return np.empty((0, 64), dtype=np.float32)
+
+    n = len(texts)
+    # Cap SVD components to a sensible range
+    n_components = min(64, n - 1) if n > 1 else 1
+
+    vectorizer = TfidfVectorizer(
+        ngram_range=(1, 2),
+        max_features=5000,
+        sublinear_tf=True,
+        min_df=1,
+    )
+    tfidf_matrix = vectorizer.fit_transform(texts)
+
+    if n_components >= 1 and tfidf_matrix.shape[1] > n_components:
+        svd = TruncatedSVD(n_components=n_components, random_state=42)
+        embeddings = svd.fit_transform(tfidf_matrix)
+    else:
+        embeddings = tfidf_matrix.toarray()
+
+    # L2-normalize so cosine similarity == dot product
+    embeddings = normalize(embeddings, norm="l2")
+    return embeddings.astype(np.float32)
 
 
 # ============================================================
