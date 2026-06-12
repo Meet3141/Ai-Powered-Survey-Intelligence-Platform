@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useContext } from 'react';
 import { AuthProvider, AuthContext } from './context/AuthContext';
-import AnimatedBackground from './components/layout/AnimatedBackground';
-import Navbar from './components/layout/Navbar';
+import AnimatedBackground from './Components/layout/AnimatedBackground';
+import Navbar from './Components/layout/Navbar';
 import LandingPage from './pages/LandingPage';
 import AuthPage from './pages/AuthPage';
 import SurveyPage from './pages/SurveyPage';
