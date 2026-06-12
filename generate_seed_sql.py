@@ -11,6 +11,23 @@ def generate_sql():
     sql.append("ALTER SEQUENCE users_id_seq RESTART WITH 100;")
     sql.append("ALTER SEQUENCE survey_responses_id_seq RESTART WITH 1;")
     sql.append("\n-- ==================================================")
+    sql.append("-- PHASE 1.5: GENERATE SURVEY QUESTIONS")
+    sql.append("-- ==================================================\n")
+    
+    sql.append("INSERT INTO survey_questions (sequence_no, question, question_type, options, category, trigger_value) VALUES ")
+    sql.append("(1, 'What''s your name?', 'open_ended', NULL, 'general', NULL),")
+    sql.append("(2, 'What is your department?', 'single_choice', '[\\\"Computer Science\\\", \\\"Information Technology\\\", \\\"Electronics\\\", \\\"Mechanical\\\"]', 'general', NULL),")
+    sql.append("(3, 'What are your main areas of interest?', 'multiple_choice', '[\\\"Web Development\\\", \\\"AI/ML\\\", \\\"Cybersecurity\\\", \\\"Data Science\\\", \\\"Cloud Computing\\\"]', 'general', NULL),")
+    sql.append("(4, 'How would you rate your current skill level in programming?', 'rating', NULL, 'general', NULL),")
+    sql.append("(5, 'What are your primary career goals?', 'multiple_choice', '[\\\"Software Engineer\\\", \\\"Data Scientist\\\", \\\"Product Manager\\\", \\\"Researcher\\\", \\\"Entrepreneur\\\"]', 'general', NULL),")
+    sql.append("(6, 'Which technologies do you want to learn next?', 'multiple_choice', '[\\\"React\\\", \\\"Python\\\", \\\"Node.js\\\", \\\"Docker\\\", \\\"AWS\\\", \\\"TensorFlow\\\"]', 'general', NULL),")
+    sql.append("(7, 'Do you prefer working individually or in a team?', 'single_choice', '[\\\"Individually\\\", \\\"In a team\\\", \\\"Depends on the project\\\"]', 'general', NULL),")
+    sql.append("(8, 'What kind of projects excite you the most?', 'open_ended', NULL, 'general', NULL),")
+    sql.append("(9, 'How much time can you dedicate to community projects weekly?', 'single_choice', '[\\\"1-2 hours\\\", \\\"3-5 hours\\\", \\\"5-10 hours\\\", \\\"10+ hours\\\"]', 'general', NULL),")
+    sql.append("(10, 'Any additional comments or expectations?', 'open_ended', NULL, 'general', NULL)")
+    sql.append("ON CONFLICT (sequence_no) DO NOTHING;\n")
+
+    sql.append("\n-- ==================================================")
     sql.append("-- PHASE 3 & 4: GENERATE TEST STUDENTS AND RESPONSES")
     sql.append("-- ==================================================\n")
 

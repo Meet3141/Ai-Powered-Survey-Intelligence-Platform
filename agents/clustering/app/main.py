@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-
+from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes.analytics import router as analytics_router
 from app.api.routes.communities import router as communities_router
 from app.api.routes.pipeline import router as pipeline_router
@@ -16,6 +16,17 @@ app = FastAPI(
     description="Community discovery, student matching, analytics, reporting, and email automation for cleaned student data.",
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://ai-powered-survey-intelligence-plat.vercel.app",
+        "http://localhost:3000",
+        "http://localhost:5173"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.on_event("startup")
 def startup_event() -> None:
