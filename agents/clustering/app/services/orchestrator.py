@@ -40,17 +40,20 @@ def run_agent3_pipeline(
 
     # Build profiles
     frame = enrich_student_profiles(frame)
+    logger.info("Profiles built")
 
     # Generate embeddings
     embeddings = generate_embeddings(
         frame["profile_text"].tolist(),
         settings.embeddings_model,
     )
+    logger.info("Embeddings generated")
 
     # Community discovery
     labels, cluster_count, clustering_method = cluster_students(
         embeddings
     )
+    logger.info("Clustering complete")
 
     community_bundle = discover_communities(
         frame,
