@@ -78,6 +78,21 @@ const initDB = async () => {
     await pool.query('CREATE INDEX IF NOT EXISTS idx_session_id ON survey_responses(session_id)');
     await pool.query('CREATE INDEX IF NOT EXISTS idx_responses_user_id ON survey_responses(user_id)');
 
+    // Seed Admin User
+    await pool.query(`
+      INSERT INTO users
+      (full_name, email, password_hash, department, role)
+      VALUES
+      (
+        'System Admin',
+        'admin@stemvalley.com',
+        '$2b$10$odd5a75CTj0aeb4/TFhydePSWOBQ2rvYxiRUcqbHWYXGz8nN3O7Z6',
+        'Administration',
+        'admin'
+      )
+      ON CONFLICT (email) DO NOTHING;
+    `);
+
     console.log('✅ Database tables initialized');
   } catch (error) {
     console.error('❌ Database init error:', error.message);
