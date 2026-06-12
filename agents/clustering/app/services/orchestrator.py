@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 from typing import Any
+import traceback
 
 from app.core.config import settings
 from app.services.analytics import generate_analytics
@@ -23,6 +24,17 @@ logger = logging.getLogger(__name__)
 
 
 def run_agent3_pipeline(
+    input_path: str | Path | None = None,
+) -> dict[str, Any]:
+    try:
+        return _run_agent3_pipeline(input_path)
+    except Exception as e:
+        print("AGENT3 CRASH:")
+        print(str(e))
+        traceback.print_exc()
+        raise
+
+def _run_agent3_pipeline(
     input_path: str | Path | None = None,
 ) -> dict[str, Any]:
 
