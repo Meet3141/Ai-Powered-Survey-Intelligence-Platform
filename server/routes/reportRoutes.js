@@ -172,13 +172,33 @@ router.get('/stats', adminMiddleware, async (req, res) => {
   }
 });
 
-// Serve the specific cleaned_data.xlsx from Agent 3 inputs as requested
-router.get('/download/cleaned_data.xlsx', adminMiddleware, (req, res) => {
-  const filePath = path.join(__dirname, '../../agents/outputs/final_clean_dataset.xlsx');
-  res.download(filePath, 'cleaned_data.xlsx');
-});
+// Proxy downloads from Agent 3 (where the files are actually generated)
+router.get('/download/:filename', adminMiddleware, async (req, res) => {
+  try {
+    const agent3Url = process.env.AGENT3_URL?.replace(/\/$/, '');
+    const { filename } = req.params;
 
-// Serve generated PDFs and files securely to admins
-router.use('/download', adminMiddleware, express.static(path.join(__dirname, '../../agents/outputs')));
+    if (!agent3Url) {
+      return res.status(500).json({ message: 'AGENT3_URL not configured' });
+    }
+
+    const response = await axios.get(
+      `${agent3Url}/download/${filename}`,
+      { responseType: 'stream' }
+    );
+
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${filename}"`
+    );
+
+    response.data.pipe(res);
+  } catch (err) {
+    console.error(`Download proxy error for ${req.params.filename}:`, err.message);
+    res.status(404).json({
+      message: 'File not found on upstream agent server'
+    });
+  }
+});
 
 export default router;

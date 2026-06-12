@@ -54,9 +54,31 @@ def run_pipeline(payload: Optional[PipelineRunRequest] = None):
             "status": "success",
             "communities": len(communities),
             "pdf_report": artifacts.get("pdf", ""),
-            "ppt_report": artifacts.get("pptx", "")
+            "excel_report": artifacts.get("excel", ""),
+            "ppt_report": artifacts.get("pptx", ""),
+            "artifacts": artifacts
         }
     except HTTPException:
         raise
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@router.get("/download/{filename}")
+def download_file(filename: str):
+    from fastapi.responses import FileResponse
+    file_path = settings.output_dir / filename
+
+    if not file_path.exists():
+        # Fallback check if it's the raw dataset name mismatch
+        if filename == "cleaned_data.xlsx":
+            file_path = settings.output_dir / "final_clean_dataset.xlsx"
+            
+        if not file_path.exists():
+            raise HTTPException(status_code=404, detail="File not found")
+
+    return FileResponse(
+        path=file_path,
+        filename=filename,
+        media_type="application/octet-stream"
+    )
