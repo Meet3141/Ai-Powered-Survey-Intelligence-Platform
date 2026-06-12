@@ -174,7 +174,7 @@ router.get('/stats', adminMiddleware, async (req, res) => {
 
 // Serve the specific cleaned_data.xlsx from Agent 3 inputs as requested
 router.get('/download/cleaned_data.xlsx', adminMiddleware, (req, res) => {
-  const filePath = path.join(__dirname, '../../agents/cleaning/agent3-community-intelligence/inputs/cleaned_data.xlsx');
+  const filePath = path.join(__dirname, '../../agents/outputs/final_clean_dataset.xlsx');
   res.download(filePath, 'cleaned_data.xlsx');
 });
 
