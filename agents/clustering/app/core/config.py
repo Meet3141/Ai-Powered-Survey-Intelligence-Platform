@@ -12,7 +12,7 @@ class Settings:
         "DATABASE_URL",
         "postgresql+psycopg2://postgres:postgres@localhost:5432/survey_ai",
     )
-    embeddings_model: str = os.getenv("EMBEDDINGS_MODEL", "all-MiniLM-L6-v2")
+    embeddings_model: str = os.getenv("EMBEDDINGS_MODEL", "paraphrase-MiniLM-L3-v2")
     email_enabled: bool = os.getenv("EMAIL_ENABLED", "true").lower() in {"1", "true", "yes", "on"}
     smtp_host: str = os.getenv("SMTP_HOST", "")
     smtp_port: int = int(os.getenv("SMTP_PORT", "587"))
